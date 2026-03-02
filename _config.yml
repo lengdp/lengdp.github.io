@@ -1,20 +1,20 @@
 ## Site Meta ##
 # The title of the website.
-title: "Lens - Elastic Designs"
+title: "呆呆的幸福生活"
 # The description of the website
-description: "A Jekyll theme for photographers and photo bloggers."
+description: "一个关于呆呆的图片博客。"
 # Keywords/tags for you site.
 keywords: "lens, jeykll-lens, jekyll, theme, jekyll-theme, photography, blog, photography-blog, photo-blog"
 # Your copyright message.
-copyright: "Copyright &copy; 2017 - Elastic Designs."
+copyright: "Copyright &copy; 2026 - lengdp."
 
 ## Site Configurations ##
 # 1st heading of the site.
-header: "Lens"
+header: "呆呆"
 # 2nd heading/sub heading of the website.
-subheader: "Elastic Designs"
+subheader: "的幸福生活"
 # A description/bio of the website.
-bio: "A Jekyll theme for photographers and photo bloggers."
+bio: "一个关于呆呆的图片博客。"
 social:
   # Your Twitter username.
   twitter_username: ""
