@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>呆呆的成长日记 | Puppy Diary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <style>
+        /* --- 全局设定 --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, #fdfbf7 0%, #f0f0f0 100%);
+            color: #1d1d1f;
+            overflow-x: hidden;
+        }
+
+        /* --- 顶部Header --- */
+        header {
+            position: fixed; top: 0; width: 100%; 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem; z-index: 1001;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            height: 56px;
+        }
+        h1 { font-size: 1.2rem; font-weight: 600; color: #1d1d1f; }
+        
+        /* --- Hero 区域 --- */
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+            transform: scale(1.0);
+            transition: transform 0.1s linear;
+            will-change: transform;
+        }
+        .hero-content {
+            position: absolute;
+            text-align: center;
+            color: white;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .hero-content h2 {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            animation: bounce 2s infinite;
+        }
+
+        /* --- 主容器布局 --- */
+        .main-wrapper {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .container { 
+            flex-grow: 1;
+            padding: 40px 20px; 
+            position: relative; 
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* --- 月份进度导航栏 --- */
+        .progress-nav {
+            position: sticky;
+            top: 80px;
+            right: 0;
+            width: 100px;
+            height: fit-content;
+            padding-left: 20px;
+            border-left: 1px solid #d1d1d6;
+            z-index: 1000;
+        }
+        .progress-nav a {
+            display: block;
+            text-decoration: none;
+            color: #86868b;
+            font-size: 0.85rem;
+            padding: 8px 0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .progress-nav a:hover, .progress-nav a.active {
+            color: #ff6b6b;
+            transform: translateX(4px);
+        }
+
+        /* --- 时间线布局 --- */
+        .timeline { position: relative; padding: 40px 0; }
+        .timeline::after {
+            content: ''; position: absolute; width: 2px; background-color: #d1d1d6;
+            top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+            z-index: 1;
+        }
+        .timeline-item {
+            position: relative; width: 50%; 
+            padding: 20px 30px;
+            opacity: 0; 
+            transform: translateY(50px); 
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        }
+        .timeline-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .timeline-item::after {
+            content: ''; 
+            position: absolute; 
+            width: 12px; height: 12px;
+            background-color: #fff; 
+            border: 3px solid #ff6b6b; 
+            border-radius: 50%;
+            z-index: 2;
+            top: 40px;
+            left: calc(100% - 6px);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        }
+        .left { right: 0; text-align: left; }
+        .right { left: 50%; }
+        .right::after { left: -6px; }
+
+        /* --- 卡片样式 --- */
+        .card {
+            background: white; 
+            border-radius: 18px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+        }
+        .card:hover {
+            transform: translateY(-6px); 
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+        .card-inner { padding: 20px 24px 10px; }
+        .card-media { position: relative; line-height: 0; aspect-ratio: 16/9; }
+        .date-badge {
+            display: inline-block; 
+            color: #ff6b6b;
+            font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .card-text h3 { 
+            color: #1d1d1f; 
+            margin-bottom: 12px; 
+            font-size: 1.4rem; 
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .card-text p {
+            color: #6e6e73;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .card:hover .card-media img { transform: scale(1.05); }
+
+        /* --- 自适应规则 --- */
+        @media screen and (max-width: 1024px) {
+            .progress-nav { width: 80px; padding-left: 15px; }
+            .progress-nav a { font-size: 0.8rem; padding: 6px 0; }
+        }
+        @media screen and (max-width: 768px) {
+            .hero-content h2 { font-size: 2.5rem; }
+            .main-wrapper { display: block; }
+            .progress-nav {
+                position: fixed;
+                top: 56px; left: 0;
+                width: 100%; height: 44px;
+                padding: 0 20px;
+                border-left: none; border-bottom: 1px solid rgba(0,0,0,0.05);
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(20px);
+                white-space: nowrap; overflow-x: auto; overflow-y: hidden;
+                -ms-overflow-style: none; scrollbar-width: none;
+            }
+            .progress-nav::-webkit-scrollbar { display: none; }
+            .progress-nav a {
+                display: inline-block;
+                padding: 0 14px; line-height: 44px;
+                margin: 0; font-size: 0.9rem;
+            }
+            .progress-nav a:hover, .progress-nav a.active {
+                color: #ff6b6b; transform: none;
+                border-bottom: 2px solid #ff6b6b;
+            }
+            .timeline::after { left: 30px; }
+            .timeline-item { 
+                width: 100%; 
+                padding-left: 60px; 
+                padding-right: 10px; 
+            }
+            .right { left: 0; }
+            .timeline-item::after, .right::after { left: 24px !important; }
+            .container { padding-top: 110px; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+            40% {transform: translateY(-10px) translateX(-50%);}
+            60% {transform: translateY(-5px) translateX(-50%);}
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>呆呆的日记</h1>
+</header>
+
+<div class="hero" id="hero">
+    <img src="images/homebackground.jpg" alt="Hero Image" id="heroBg">
+    <div class="hero-content">
+        <h2>Hello, Maomao</h2>
+        <p>记录每一个不可复制的瞬间</p>
+    </div>
+    <div class="scroll-hint">向下滚动</div>
+</div>
+
+<div class="main-wrapper">
+    <div class="container">
+        <div class="timeline" id="timeline-container">
+            <!-- 图片卡片将通过JS自动渲染到这里 -->
+        </div>
+    </div>
+    <nav class="progress-nav" id="progressNav">
+        <!-- 导航链接将通过JS自动渲染到这里 -->
+    </nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lozad@1.16.0/dist/lozad.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script>
+    // 1. 读取图片清单并自动渲染
+    async function renderImages() {
+        try {
+            // 读取image-list.json文件
+            const response = await fetch('image-list.json');
+            if (!response.ok) throw new Error('图片清单加载失败');
+            const imageList = await response.json();
+            
+            const timelineContainer = document.getElementById('timeline-container');
+            const progressNav = document.getElementById('progressNav');
+            let navLinks = '';
+            let timelineHtml = '';
+
+            // 遍历图片清单，生成卡片和导航
+            imageList.forEach((item, index) => {
+                // 生成月份ID（用于锚点跳转）
+                const monthId = `month-${item.date.replace(/\./g, '-')}`;
+                // 交替排列左右卡片
+                const cardSide = index % 2 === 0 ? 'left' : 'right';
+                
+                // 生成时间线卡片
+                timelineHtml += `
+                <div class="timeline-section" id="${monthId}">
+                    <div class="timeline-item ${cardSide}">
+                        <div class="card">
+                            <div class="card-inner">
+                                <div class="date-badge">${item.date}</div>
+                                <div class="card-text">
+                                    <h3>${item.title}</h3>
+                                    <p>${item.desc}</p>
+                                </div>
+                            </div>
+                            <div class="card-media">
+                                <a href="${item.img}" data-lightbox="set" data-title="${item.title}">
+                                    <img class="lozad" data-src="${item.img}" alt="${item.alt}" width="960" height="640">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+                // 生成导航链接
+                navLinks += `<a href="#${monthId}" class="nav-link">${item.date}</a>`;
+            });
+
+            // 插入到页面中
+            timelineContainer.innerHTML = timelineHtml;
+            progressNav.innerHTML = navLinks;
+
+            // 初始化懒加载
+            const observer = lozad('.lozad', { rootMargin: '200px 0px' });
+            observer.observe();
+
+            // 初始化卡片渐入动画
+            initScrollAnimation();
+            // 初始化导航高亮
+            initNavHighlight();
+
+        } catch (error) {
+            console.error('渲染图片失败：', error);
+            document.getElementById('timeline-container').innerHTML = `
+                <div style="text-align:center; padding: 50px; color: #ff6b6b;">
+                    <h3>图片加载失败 😢</h3>
+                    <p>请检查 zipImage 文件夹和 image-list.json 文件是否正确</p>
+                </div>
+            `;
+        }
+    }
+
+    // 2. 卡片滚动渐入动画
+    function initScrollAnimation() {
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const appearOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
+        
+        const appearOnScroll = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, appearOptions);
+
+        timelineItems.forEach(item => appearOnScroll.observe(item));
+    }
+
+    // 3. 导航高亮+自动滚动
+    function initNavHighlight() {
+        const sections = document.querySelectorAll('.timeline-section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        const navObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    const id = entry.target.getAttribute('id');
+                    const activeLink = document.querySelector(`.progress-nav a[href="#${id}"]`);
+                    if(activeLink) {
+                        activeLink.classList.add('active');
+                        // 移动端导航自动居中
+                        if (window.innerWidth < 768) {
+                            activeLink.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                        }
+                    }
+                }
+            });
+        }, { rootMargin: "-50% 0px -50% 0px" });
+
+        sections.forEach(section => navObserver.observe(section));
+    }
+
+    // 4. Hero区域下滑放大效果
+    window.addEventListener('scroll', () => {
+        const scrollPos = window.scrollY;
+        const heroHeight = document.getElementById('hero').offsetHeight;
+        const heroBg = document.getElementById('heroBg');
+        
+        if (scrollPos < heroHeight) {
+            const scale = 1 + (scrollPos / heroHeight) * 0.3;
+            heroBg.style.transform = `scale(${scale})`;
+        }
+    });
+
+    // 页面加载完成后执行渲染
+    window.onload = renderImages;
+</script>
+</body>
+</html>
