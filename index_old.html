@@ -1,561 +1,2245 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>呆呆</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- 自定义内联样式 (覆盖/增强) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>呆呆的成长日记 | Puppy Diary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/lozad@1.16.0/dist/lozad.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js" defer></script>
     <style>
-        /* 全局微调 */
-        body {
-            background-color: #f5f5f7;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, #fdfbf7 0%, #f0f0f0 100%);
             color: #1d1d1f;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
+            padding-bottom: 50px;
         }
 
-        /* 导航栏透明 -> 滚动后变实色 (Bootstrap 风格) */
-        .navbar {
-            transition: background-color 0.3s, backdrop-filter 0.3s;
-            background-color: transparent !important;
-            backdrop-filter: none;
-            position: fixed;
-            width: 100%;
-            z-index: 1030;
-            padding: 1rem 2rem;
+        /* Header样式 - 移动端适配优化 */
+        header {
+            position: fixed; top: 0; width: 100%; 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 1rem; z-index: 1001;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            height: 56px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        .navbar.scrolled {
-            background-color: rgba(245,245,247,0.85) !important;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .navbar .nav-link {
-            color: #1d1d1f !important;
-            opacity: 0.8;
-            font-weight: 400;
-        }
-        .navbar .nav-link:hover {
-            opacity: 1;
-            color: #0066cc !important;
-        }
-        .navbar-brand {
-            font-weight: 600;
-            font-size: 1.8rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #1d1d1f, #444446);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* 英雄区全屏 + 背景图滚动缩放 */
-        .hero-full {
+        h1 { font-size: 1rem; font-weight: 600; color: #1d1d1f; }
+        
+        /* Hero区域 - 移动端适配 */
+        .hero {
             position: relative;
+            height: 80vh; /* 移动端降低高度，避免占满屏幕 */
             width: 100%;
-            height: 100vh;               /* 全屏高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            background-color: #1d1d1f;    /* 底色，缩放时露出 */
+            background-color: #000;
         }
-        .hero-bg-img {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .hero img {
             width: 100%;
             height: 100%;
-            object-fit: cover;            /* 确保覆盖区域 */
-            transform: scale(1);           /* 初始缩放1，由JS动态改变 */
-            transition: transform 0.1s linear; /* 平滑变化，但为了性能用JS直接改transform */
+            object-fit: cover;
+            opacity: 0.9;
+            transform: scale(1.0);
+            transition: transform 0.2s ease-out;
             will-change: transform;
-            z-index: 0;
         }
         .hero-content {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             text-align: center;
             color: white;
             z-index: 2;
-            width: 80%;
-            max-width: 800px;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            pointer-events: none;
+            padding: 0 1rem;
         }
-        .hero-content .subtitle {
-            font-size: 1.2rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-        .hero-content h1 {
-            font-size: clamp(3rem, 10vw, 6rem);
+        .hero-content h2 {
+            font-size: 2rem; /* 移动端缩小标题 */
             font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            margin-bottom: 0.5rem;
         }
         .hero-content p {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            opacity: 0.8;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
-        .hero-content .btn {
-            margin: 0 0.5rem;
-            padding: 0.75rem 2rem;
-            border-radius: 40px;
-            font-weight: 500;
-        }
-
-        /* 内容区通用 */
-        .section-title {
-            font-size: 3rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            margin-bottom: 1rem;
-        }
-        .section-sub {
-            font-size: 1.4rem;
-            color: #6e6e73;
-            margin-bottom: 3rem;
-        }
-
-        /* 卡片特性 (沿用之前) */
-        .feature-card {
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            padding: 2.5rem 2rem;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.5);
-            transition: all 0.4s ease;
-            height: 100%;
-        }
-        .feature-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 30px 40px -15px rgba(0,102,204,0.2);
-            border-color: rgba(0,102,204,0.2);
-        }
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-        }
-        .feature-card h3 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        .feature-card p {
-            color: #6e6e73;
-            font-size: 1.1rem;
-        }
-
-        /* 成长历程 (横向滑动 + 隐藏滚动条 + 拖拽 + 进度点) */
-        .journey {
-            margin: 6rem 0;
-        }
-        .horizontal-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 30px;
-            padding: 20px 10px 40px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;  /* Firefox隐藏 */
-            -ms-overflow-style: none; /* IE */
-            cursor: grab;
-            user-select: none;
-            position: relative;
-        }
-        .horizontal-scroll::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
-        .horizontal-scroll.dragging {
-            cursor: grabbing;
-            scroll-snap-type: none;
-        }
-        .journey-card {
-            flex: 0 0 350px;
-            background: rgba(255,255,255,0.75);
-            backdrop-filter: blur(15px);
-            border-radius: 48px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.8);
-            scroll-snap-align: start;
-            transition: transform 0.4s, box-shadow 0.4s;
-            position: relative;
-        }
-        .journey-card:hover {
-            transform: scale(1.02) translateY(-8px);
-            box-shadow: 0 35px 50px -15px rgba(0,102,204,0.25);
-            border-color: rgba(0,102,204,0.3);
-        }
-        .journey-card .dot-connector {
+        .scroll-hint {
             position: absolute;
-            bottom: -30px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 4px;
-            height: 30px;
-            background: linear-gradient(to bottom, #0066cc, transparent);
-            opacity: 0.4;
+            color: white;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            animation: bounce 2s infinite;
         }
-        .journey-card:last-child .dot-connector {
-            display: none;
-        }
-        .journey-year {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #0066cc;
-            margin-bottom: 1rem;
-        }
-        .journey-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        .journey-desc {
-            color: #6e6e73;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-        /* 底部虚线 */
-        .horizontal-scroll::before {
-            content: '';
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: repeating-linear-gradient(90deg, #0066cc 0px, #0066cc 10px, transparent 10px, transparent 20px);
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 0;
-        }
-        /* 进度点 */
-        .progress-dots {
+
+        /* 主容器布局 - 移动端优先 */
+        .main-wrapper {
             display: flex;
-            justify-content: center;
-            gap: 14px;
-            margin-top: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            padding: 1rem;
+            padding-top: 66px; /* 避开header */
         }
-        .progress-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #c6c6c8;
-            transition: background 0.3s, transform 0.2s;
-            cursor: pointer;
-        }
-        .progress-dot.active {
-            background: #0066cc;
-            transform: scale(1.3);
+        .container { 
+            flex-grow: 1;
+            padding: 0; 
+            position: relative; 
+            max-width: calc(100% - 90px);
+            /* 卡片竖向排列 */
+            display: flex;
+            flex-direction: column;
+            gap: 25px; /* 卡片间距，移动端更紧凑 */
         }
 
-        /* 滚动显现动画 (带缩放) */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(40px) scale(0.92);
-            transition: opacity 0.9s cubic-bezier(0.22, 0.98, 0.32, 1), transform 0.9s cubic-bezier(0.22, 0.98, 0.32, 1);
-            will-change: transform, opacity;
+        /* 年月锚点 */
+        .timeline-month-anchor {
+            position: relative;
+            top: -70px; 
+            left: 0;
+            height: 0;
+            width: 0;
+            visibility: hidden;
         }
-        .fade-up.visible {
+
+        /* 卡片容器 */
+        .timeline-item {
+            position: relative;
+            width: 100%;
+            padding: 0;
+            opacity: 0; 
+            transform: translateY(30px); 
+            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); /* 更顺滑的入场动画 */
+            margin: 0 auto;
+            max-width: 750px;
+        }
+        .timeline-item.active {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
-        .delay-1 { transition-delay: 0.12s; }
-        .delay-2 { transition-delay: 0.24s; }
-        .delay-3 { transition-delay: 0.36s; }
-        .delay-4 { transition-delay: 0.48s; }
 
-        /* 底部 */
-        footer {
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding: 2rem 0;
-            margin-top: 4rem;
-            color: #86868b;
+        /* 卡片核心样式 - 移动端优化 */
+        .card {
+            background: white; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06); 
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); /* 整体顺滑过渡 */
+            cursor: pointer;
+            width: 100%;
         }
-        footer a {
+        /* 卡片悬停效果 - 更柔和 */
+        .card:hover {
+            transform: translateY(-4px); 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        .card-inner { 
+            padding: 16px 20px 10px; 
+            /* 移动端内边距缩小 */
+            padding: clamp(12px, 3vw, 20px);
+        }
+        .date-badge {
+            display: inline-block; 
+            color: #ff6b6b;
+            font-size: 0.7rem; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .card-text h3 { 
+            color: #1d1d1f; 
+            margin-bottom: 8px; 
+            font-size: clamp(1rem, 2.5vw, 1.3rem); /* 响应式字体 */
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .card-text p {
             color: #6e6e73;
-            text-decoration: none;
-            margin-left: 2rem;
-        }
-        footer a:hover {
-            color: #0066cc;
+            line-height: 1.5;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            margin-bottom: 12px;
         }
 
-        /* 响应式微调 */
-        @media (max-width: 768px) {
-            .hero-content h1 {
-                font-size: 3.5rem;
+        /* ========== 核心：图片容器（竖图完整显示+顺滑放大） ========== */
+        .card-media {
+            position: relative;
+            width: 100%;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* 保证放大时不溢出 */
+        }
+        /* 图片样式 - 竖图完整显示 + 顺滑放大 */
+        .card-media img {
+            display: block;
+            width: 100%;
+            height: auto; /* 高度自适应，竖图完整显示 */
+            object-fit: contain;
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); /* 超顺滑放大 */
+            transform-origin: center center; /* 从中心放大 */
+        }
+        /* 图片悬停放大 - 幅度更小，更自然 */
+        .card:hover .card-media img {
+            transform: scale(1.03); /* 仅放大3%，不生硬 */
+        }
+
+        /* ========== B站视频卡片样式 ========== */
+        .card-video {
+            position: relative;
+            width: 100%;
+            /* 视频比例 16:9 */
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+        .card-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        /* 视频卡片悬停效果 */
+        .card:hover .card-video iframe {
+            opacity: 0.98;
+        }
+
+        /* 年月导航栏 - 移动端适配优化 */
+        .progress-nav {
+            position: sticky;
+            top: 70px;
+            right: 0;
+            width: 80px;
+            height: fit-content;
+            padding-left: 15px;
+            border-left: 1px solid #eee;
+            z-index: 1000;
+        }
+        .progress-nav a {
+            display: block;
+            text-decoration: none;
+            color: #86868b;
+            font-size: 0.8rem;
+            padding: 6px 0;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .progress-nav a:hover, .progress-nav a.active {
+            color: #ff6b6b;
+            transform: translateX(2px); /* 更小的位移 */
+        }
+        .progress-nav a.active {
+            font-weight: 700;
+        }
+
+        /* ========== 移动端适配（768px以下） ========== */
+        @media screen and (max-width: 768px) {
+            /* Hero区域 */
+            .hero {
+                height: 60vh;
             }
-            .hero-content p {
-                font-size: 1.2rem;
+            /* 主容器 */
+            .main-wrapper {
+                display: block;
+                padding: 0.5rem;
+                padding-top: 66px;
             }
-            .section-title {
-                font-size: 2.5rem;
+            .container {
+                max-width: 100%;
+                gap: 20px;
             }
-            .journey-card {
-                flex: 0 0 280px;
-                padding: 30px 20px;
+            .timeline-item {
+                max-width: 100%;
             }
+            /* 导航栏改为顶部横向滚动 */
+            .progress-nav {
+                position: fixed;
+                top: 56px; left: 0;
+                width: 100%; height: 44px;
+                padding: 0 1rem;
+                border-left: none;
+                border-bottom: 1px solid #eee;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(8px);
+                white-space: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+                z-index: 1000;
+            }
+            .progress-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .progress-nav a {
+                display: inline-block;
+                padding: 0 12px;
+                line-height: 44px;
+                margin: 0;
+                font-size: 0.85rem;
+            }
+            .progress-nav a:hover, .progress-nav a.active {
+                color: #ff6b6b;
+                transform: none;
+                border-bottom: 2px solid #ff6b6b;
+            }
+            /* 卡片间距 */
+            .container {
+                padding-top: 10px;
+            }
+            /* 图片放大幅度更小 */
+            .card:hover .card-media img {
+                transform: scale(1.02);
+            }
+        }
+
+        /* 动画优化 */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+            40% {transform: translateY(-8px) translateX(-50%);}
+            60% {transform: translateY(-4px) translateX(-50%);}
         }
     </style>
 </head>
 <body>
+<header>
+    <h1>呆呆的成长日记</h1>
+</header>
 
-<!-- 导航栏 (Bootstrap 组件) -->
-<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNavbar">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">🐕成长纪</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                <!-- <li class="nav-item"><a class="nav-link" href="intro.html">介绍</a></li> -->
-                <li class="nav-item"><a class="nav-link" href="gallery.html">图集</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<!-- 英雄区：全屏大背景图 (滚动缩放) -->
-<section class="hero-full" id="heroSection">
-    <!-- 背景图片 (使用unsplash占位图，实际可换) -->
-    <img src="images/homebackground.jpg" 
-         alt="Hero Background" class="hero-bg-img" id="heroBgImg">
+<div class="hero" id="hero">
+    <!-- 替换为你的Hero图路径 -->
+    <img src="images/homebackground.jpg" alt="呆呆的成长瞬间" id="heroBg">
     <div class="hero-content">
-        <div class="subtitle">EVERY STEP MATTERS</div>
-        <h1>时光为笔<br>爪印为诗</h1>
-        <p>每一个爪印，都是时间的作品。</p>
-        <!-- <div>
-            <a href="#" class="btn btn-primary btn-lg">探索历程</a>
-            <a href="#" class="btn btn-outline-light btn-lg">观看视频</a>
-        </div> -->
+        <h2>Hello, 呆呆</h2>
+        <p>记录每一个不可复制的瞬间</p>
     </div>
-</section>
-
-<!-- 主要内容区 (使用Bootstrap容器) -->
-<div class="container my-5 py-5">
-    <!-- 凝聚瞬间部分 -->
-    <h2 class="section-title text-center fade-up">关于呆呆</h2>
-    <p class="section-sub text-center fade-up delay-1">这里是我的介绍。</p>
-    <div class="row g-4">
-        <div class="col-md-4 fade-up delay-1">
-            <div class="feature-card">
-                <h3>基础档案</h3>
-                <p> 姓名：呆呆（Daidai）<br>
-                    品种：土松犬<br>
-                    性别：男生<br>
-                    体重：30斤（匀称健壮的小伙子）<br>
-                    出生年月：2024年12月<br>
-                    </p>
-            </div>
-        </div>
-        <div class="col-md-4 fade-up delay-2">
-            <div class="feature-card">
-                <h3>性格特点</h3>
-                <p>呆呆对新环境和新事物初期较为谨慎，<br>
-                    表现出一定胆怯，但一旦与主人建立信任，<br>
-                    便会变得非常亲近，<br>
-                    喜欢跟随主人并寻求陪伴，<br>
-                    具有典型的粘人特质。</p>
-            </div>
-        </div>
-        <div class="col-md-4 fade-up delay-3">
-            <div class="feature-card">
-                <h3>饮食习惯</h3>
-                <p>呆呆对食物有明显偏好，<br>
-                    尤其喜爱肉类，<br>
-                    对蔬菜则兴趣较低，<br>
-                    喜欢吃牛皮、羊奶棒等零食，<br>
-                    他很挑食！
-                </p>
-            </div>
-        </div>
-    </div>
+    <div class="scroll-hint">向下滚动 ↓</div>
 </div>
 
-<!-- 底部 -->
-<footer class="container-fluid" style="background: #f5f5f7;">
-    <div class="container d-flex flex-wrap justify-content-between align-items-center py-3">
-        <div>© 呆呆的成长历程<br>since 2024</div>
-        <!-- <div>
-            <a href="#">隐私政策</a>
-            <a href="#">使用条款</a>
-            <a href="#">联系</a>
-        </div> -->
+<div class="main-wrapper">
+    <div class="container" id="timeline-container">
+        <!-- 图片/视频卡片将自动渲染到这里 -->
     </div>
-</footer>
+    <nav class="progress-nav" id="progressNav">
+        <!-- 年月导航将自动渲染到这里 -->
+    </nav>
+</div>
 
-<!-- Bootstrap JS (用于导航折叠等) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- 内联交互脚本 -->
 <script>
-    (function() {
-        "use strict";
+    // 1. 数据配置（包含图片+B站视频）
+    // 视频格式说明：type: 'video', bvid: '你的B站视频BV号', 其他字段和图片一致
+    const mediaList = [
+        // 图片示例
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_035735.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV1w3cyzmEYT" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV1c3cyzmEkb" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV1rVcyzLEV6" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV16VcyzLEEy" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV16VcyzLEdV" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV1rVcyzLEEJ" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV16VcyzLEdg" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "初见呆呆 · 2025.02.28",
+    "desc": "记录刚刚到家的可爱样子～",
+    "type": "video", // 类型：视频
+    "bvid": "BV1cVcyzjEBa" // 替换为你的B站视频BV号
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_035736.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_035748.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_040919.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_070441.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_070442.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_070443.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_070444.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_070456.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_070458.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_071012.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_071136.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_071342.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_071346.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_071347.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_181930.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_184920.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_184924.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_191001.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.21",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.21",
+    "desc": "这是呆呆在2025.02.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250221_191007.jpg",
+    "alt": "呆呆 2025.02.21"
+  },
+  {
+    "date": "2025.02.22",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.22",
+    "desc": "这是呆呆在2025.02.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250222_080435.jpg",
+    "alt": "呆呆 2025.02.22"
+  },
+  {
+    "date": "2025.02.22",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.22",
+    "desc": "这是呆呆在2025.02.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250222_082115.jpg",
+    "alt": "呆呆 2025.02.22"
+  },
+  {
+    "date": "2025.02.22",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.22",
+    "desc": "这是呆呆在2025.02.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250222_170207.jpg",
+    "alt": "呆呆 2025.02.22"
+  },
+  {
+    "date": "2025.02.22",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.22",
+    "desc": "这是呆呆在2025.02.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250222_170211.jpg",
+    "alt": "呆呆 2025.02.22"
+  },
+  {
+    "date": "2025.02.22",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.22",
+    "desc": "这是呆呆在2025.02.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250222_231249.jpg",
+    "alt": "呆呆 2025.02.22"
+  },
+  {
+    "date": "2025.02.22",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.22",
+    "desc": "这是呆呆在2025.02.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250222_231252.jpg",
+    "alt": "呆呆 2025.02.22"
+  },
+  {
+    "date": "2025.02.23",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.23",
+    "desc": "这是呆呆在2025.02.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250223_114931.jpg",
+    "alt": "呆呆 2025.02.23"
+  },
+  {
+    "date": "2025.02.23",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.23",
+    "desc": "这是呆呆在2025.02.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250223_114936.jpg",
+    "alt": "呆呆 2025.02.23"
+  },
+  {
+    "date": "2025.02.23",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.23",
+    "desc": "这是呆呆在2025.02.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250223_134039.jpg",
+    "alt": "呆呆 2025.02.23"
+  },
+  {
+    "date": "2025.02.23",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.23",
+    "desc": "这是呆呆在2025.02.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250223_134840.jpg",
+    "alt": "呆呆 2025.02.23"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_190048.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_191755.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_191759.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_195208.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_195554.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_195558.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_195602.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.25",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.25",
+    "desc": "这是呆呆在2025.02.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250225_202347.jpg",
+    "alt": "呆呆 2025.02.25"
+  },
+  {
+    "date": "2025.02.27",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.27",
+    "desc": "这是呆呆在2025.02.27的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250227_212502.jpg",
+    "alt": "呆呆 2025.02.27"
+  },
+  {
+    "date": "2025.02.27",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.27",
+    "desc": "这是呆呆在2025.02.27的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250227_212509.jpg",
+    "alt": "呆呆 2025.02.27"
+  },
+  {
+    "date": "2025.02.28",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.28",
+    "desc": "这是呆呆在2025.02.28的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250228_181404.jpg",
+    "alt": "呆呆 2025.02.28"
+  },
+  {
+    "date": "2025.02.28",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.28",
+    "desc": "这是呆呆在2025.02.28的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250228_181430.jpg",
+    "alt": "呆呆 2025.02.28"
+  },
+  {
+    "date": "2025.02.28",
+    "yearMonth": "2025.02",
+    "title": "呆呆的成长记录 · 2025.02.28",
+    "desc": "这是呆呆在2025.02.28的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250228_220646.jpg",
+    "alt": "呆呆 2025.02.28"
+  },
+  {
+    "date": "2025.03.01",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.01",
+    "desc": "这是呆呆在2025.03.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250301_154630.jpg",
+    "alt": "呆呆 2025.03.01"
+  },
+  {
+    "date": "2025.03.01",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.01",
+    "desc": "这是呆呆在2025.03.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250301_212323.jpg",
+    "alt": "呆呆 2025.03.01"
+  },
+  {
+    "date": "2025.03.04",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.04",
+    "desc": "这是呆呆在2025.03.04的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250304_064358.jpg",
+    "alt": "呆呆 2025.03.04"
+  },
+  {
+    "date": "2025.03.04",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.04",
+    "desc": "这是呆呆在2025.03.04的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250304_201634.jpg",
+    "alt": "呆呆 2025.03.04"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_201704.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_201708.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_201719.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_201722.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_224315.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_224317.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_224322.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.05",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.05",
+    "desc": "这是呆呆在2025.03.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250305_224326.jpg",
+    "alt": "呆呆 2025.03.05"
+  },
+  {
+    "date": "2025.03.06",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.06",
+    "desc": "这是呆呆在2025.03.06的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250306_190204.jpg",
+    "alt": "呆呆 2025.03.06"
+  },
+  {
+    "date": "2025.03.06",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.06",
+    "desc": "这是呆呆在2025.03.06的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250306_220900.jpg",
+    "alt": "呆呆 2025.03.06"
+  },
+  {
+    "date": "2025.03.06",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.06",
+    "desc": "这是呆呆在2025.03.06的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250306_220905.jpg",
+    "alt": "呆呆 2025.03.06"
+  },
+  {
+    "date": "2025.03.06",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.06",
+    "desc": "这是呆呆在2025.03.06的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250306_220918.jpg",
+    "alt": "呆呆 2025.03.06"
+  },
+  {
+    "date": "2025.03.08",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.08",
+    "desc": "这是呆呆在2025.03.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250308_115751.jpg",
+    "alt": "呆呆 2025.03.08"
+  },
+  {
+    "date": "2025.03.08",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.08",
+    "desc": "这是呆呆在2025.03.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250308_115802.jpg",
+    "alt": "呆呆 2025.03.08"
+  },
+  {
+    "date": "2025.03.08",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.08",
+    "desc": "这是呆呆在2025.03.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250308_115826.jpg",
+    "alt": "呆呆 2025.03.08"
+  },
+  {
+    "date": "2025.03.09",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.09",
+    "desc": "这是呆呆在2025.03.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250309_193050.jpg",
+    "alt": "呆呆 2025.03.09"
+  },
+  {
+    "date": "2025.03.09",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.09",
+    "desc": "这是呆呆在2025.03.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250309_193059.jpg",
+    "alt": "呆呆 2025.03.09"
+  },
+  {
+    "date": "2025.03.11",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.11",
+    "desc": "这是呆呆在2025.03.11的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250311_194110.jpg",
+    "alt": "呆呆 2025.03.11"
+  },
+  {
+    "date": "2025.03.11",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.11",
+    "desc": "这是呆呆在2025.03.11的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250311_200411.jpg",
+    "alt": "呆呆 2025.03.11"
+  },
+  {
+    "date": "2025.03.12",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.12",
+    "desc": "这是呆呆在2025.03.12的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250312_185849.jpg",
+    "alt": "呆呆 2025.03.12"
+  },
+  {
+    "date": "2025.03.13",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.13",
+    "desc": "这是呆呆在2025.03.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250313_190338.jpg",
+    "alt": "呆呆 2025.03.13"
+  },
+  {
+    "date": "2025.03.13",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.13",
+    "desc": "这是呆呆在2025.03.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250313_190806.jpg",
+    "alt": "呆呆 2025.03.13"
+  },
+  {
+    "date": "2025.03.13",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.13",
+    "desc": "这是呆呆在2025.03.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250313_191620.jpg",
+    "alt": "呆呆 2025.03.13"
+  },
+  {
+    "date": "2025.03.13",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.13",
+    "desc": "这是呆呆在2025.03.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250313_191623.jpg",
+    "alt": "呆呆 2025.03.13"
+  },
+  {
+    "date": "2025.03.13",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.13",
+    "desc": "这是呆呆在2025.03.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250313_192215.jpg",
+    "alt": "呆呆 2025.03.13"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_070941.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_070945.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_180624.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_180625.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_200014.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_200018.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.14",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.14",
+    "desc": "这是呆呆在2025.03.14的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250314_200046.jpg",
+    "alt": "呆呆 2025.03.14"
+  },
+  {
+    "date": "2025.03.16",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.16",
+    "desc": "这是呆呆在2025.03.16的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250316_200439.jpg",
+    "alt": "呆呆 2025.03.16"
+  },
+  {
+    "date": "2025.03.16",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.16",
+    "desc": "这是呆呆在2025.03.16的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250316_212154.jpg",
+    "alt": "呆呆 2025.03.16"
+  },
+  {
+    "date": "2025.03.16",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.16",
+    "desc": "这是呆呆在2025.03.16的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250316_212204.jpg",
+    "alt": "呆呆 2025.03.16"
+  },
+  {
+    "date": "2025.03.16",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.16",
+    "desc": "这是呆呆在2025.03.16的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250316_212223.jpg",
+    "alt": "呆呆 2025.03.16"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072324.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072332.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072334.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072444.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072447.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072448.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072450.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.17",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.17",
+    "desc": "这是呆呆在2025.03.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250317_072523.jpg",
+    "alt": "呆呆 2025.03.17"
+  },
+  {
+    "date": "2025.03.18",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.18",
+    "desc": "这是呆呆在2025.03.18的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250318_154732.jpg",
+    "alt": "呆呆 2025.03.18"
+  },
+  {
+    "date": "2025.03.18",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.18",
+    "desc": "这是呆呆在2025.03.18的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250318_160657.jpg",
+    "alt": "呆呆 2025.03.18"
+  },
+  {
+    "date": "2025.03.19",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.19",
+    "desc": "这是呆呆在2025.03.19的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250319_072326.jpg",
+    "alt": "呆呆 2025.03.19"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_071738.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_072037.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_175645.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_175648.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_175653.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_175700.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_190759.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_190806.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_224941.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.20",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.20",
+    "desc": "这是呆呆在2025.03.20的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250320_224943.jpg",
+    "alt": "呆呆 2025.03.20"
+  },
+  {
+    "date": "2025.03.21",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.21",
+    "desc": "这是呆呆在2025.03.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250321_072018.jpg",
+    "alt": "呆呆 2025.03.21"
+  },
+  {
+    "date": "2025.03.21",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.21",
+    "desc": "这是呆呆在2025.03.21的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250321_170214.jpg",
+    "alt": "呆呆 2025.03.21"
+  },
+  {
+    "date": "2025.03.22",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.22",
+    "desc": "这是呆呆在2025.03.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250322_162029.jpg",
+    "alt": "呆呆 2025.03.22"
+  },
+  {
+    "date": "2025.03.22",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.22",
+    "desc": "这是呆呆在2025.03.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250322_162035.jpg",
+    "alt": "呆呆 2025.03.22"
+  },
+  {
+    "date": "2025.03.22",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.22",
+    "desc": "这是呆呆在2025.03.22的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250322_162041.jpg",
+    "alt": "呆呆 2025.03.22"
+  },
+  {
+    "date": "2025.03.23",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.23",
+    "desc": "这是呆呆在2025.03.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250323_080718.jpg",
+    "alt": "呆呆 2025.03.23"
+  },
+  {
+    "date": "2025.03.23",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.23",
+    "desc": "这是呆呆在2025.03.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250323_080958.jpg",
+    "alt": "呆呆 2025.03.23"
+  },
+  {
+    "date": "2025.03.23",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.23",
+    "desc": "这是呆呆在2025.03.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250323_081007.jpg",
+    "alt": "呆呆 2025.03.23"
+  },
+  {
+    "date": "2025.03.23",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.23",
+    "desc": "这是呆呆在2025.03.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250323_081015.jpg",
+    "alt": "呆呆 2025.03.23"
+  },
+  {
+    "date": "2025.03.23",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.23",
+    "desc": "这是呆呆在2025.03.23的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250323_081444.jpg",
+    "alt": "呆呆 2025.03.23"
+  },
+  {
+    "date": "2025.03.24",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.24",
+    "desc": "这是呆呆在2025.03.24的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250324_070456.jpg",
+    "alt": "呆呆 2025.03.24"
+  },
+  {
+    "date": "2025.03.24",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.24",
+    "desc": "这是呆呆在2025.03.24的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250324_071100.jpg",
+    "alt": "呆呆 2025.03.24"
+  },
+  {
+    "date": "2025.03.24",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.24",
+    "desc": "这是呆呆在2025.03.24的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250324_071106.jpg",
+    "alt": "呆呆 2025.03.24"
+  },
+  {
+    "date": "2025.03.24",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.24",
+    "desc": "这是呆呆在2025.03.24的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250324_071324.jpg",
+    "alt": "呆呆 2025.03.24"
+  },
+  {
+    "date": "2025.03.24",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.24",
+    "desc": "这是呆呆在2025.03.24的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250324_071330.jpg",
+    "alt": "呆呆 2025.03.24"
+  },
+  {
+    "date": "2025.03.25",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.25",
+    "desc": "这是呆呆在2025.03.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250325_181223.jpg",
+    "alt": "呆呆 2025.03.25"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_072859.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170309.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170319.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170333.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170340.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170351.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170353.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170355.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170356.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_170357.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_230127.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_230200.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.26",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.26",
+    "desc": "这是呆呆在2025.03.26的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250326_230211.jpg",
+    "alt": "呆呆 2025.03.26"
+  },
+  {
+    "date": "2025.03.29",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.29",
+    "desc": "这是呆呆在2025.03.29的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250329_095829.jpg",
+    "alt": "呆呆 2025.03.29"
+  },
+  {
+    "date": "2025.03.30",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.30",
+    "desc": "这是呆呆在2025.03.30的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250330_083809.jpg",
+    "alt": "呆呆 2025.03.30"
+  },
+  {
+    "date": "2025.03.30",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.30",
+    "desc": "这是呆呆在2025.03.30的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250330_083813.jpg",
+    "alt": "呆呆 2025.03.30"
+  },
+  {
+    "date": "2025.03.30",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.30",
+    "desc": "这是呆呆在2025.03.30的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250330_192714.jpg",
+    "alt": "呆呆 2025.03.30"
+  },
+  {
+    "date": "2025.03.30",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.30",
+    "desc": "这是呆呆在2025.03.30的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250330_192716.jpg",
+    "alt": "呆呆 2025.03.30"
+  },
+  {
+    "date": "2025.03.31",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.31",
+    "desc": "这是呆呆在2025.03.31的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250331_070515.jpg",
+    "alt": "呆呆 2025.03.31"
+  },
+  {
+    "date": "2025.03.31",
+    "yearMonth": "2025.03",
+    "title": "呆呆的成长记录 · 2025.03.31",
+    "desc": "这是呆呆在2025.03.31的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250331_172616.jpg",
+    "alt": "呆呆 2025.03.31"
+  },
+  {
+    "date": "2025.04.01",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.01",
+    "desc": "这是呆呆在2025.04.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250401_070704.jpg",
+    "alt": "呆呆 2025.04.01"
+  },
+  {
+    "date": "2025.04.01",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.01",
+    "desc": "这是呆呆在2025.04.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250401_070709.jpg",
+    "alt": "呆呆 2025.04.01"
+  },
+  {
+    "date": "2025.04.01",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.01",
+    "desc": "这是呆呆在2025.04.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250401_070710.jpg",
+    "alt": "呆呆 2025.04.01"
+  },
+  {
+    "date": "2025.04.01",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.01",
+    "desc": "这是呆呆在2025.04.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250401_070719.jpg",
+    "alt": "呆呆 2025.04.01"
+  },
+  {
+    "date": "2025.04.01",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.01",
+    "desc": "这是呆呆在2025.04.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250401_070723.jpg",
+    "alt": "呆呆 2025.04.01"
+  },
+  {
+    "date": "2025.04.03",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.03",
+    "desc": "这是呆呆在2025.04.03的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250403_175737.jpg",
+    "alt": "呆呆 2025.04.03"
+  },
+  {
+    "date": "2025.04.04",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.04",
+    "desc": "这是呆呆在2025.04.04的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250404_072850.jpg",
+    "alt": "呆呆 2025.04.04"
+  },
+  {
+    "date": "2025.04.04",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.04",
+    "desc": "这是呆呆在2025.04.04的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250404_093826.jpg",
+    "alt": "呆呆 2025.04.04"
+  },
+  {
+    "date": "2025.04.08",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.08",
+    "desc": "这是呆呆在2025.04.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250408_072219.jpg",
+    "alt": "呆呆 2025.04.08"
+  },
+  {
+    "date": "2025.04.08",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.08",
+    "desc": "这是呆呆在2025.04.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250408_072224.jpg",
+    "alt": "呆呆 2025.04.08"
+  },
+  {
+    "date": "2025.04.08",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.08",
+    "desc": "这是呆呆在2025.04.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250408_072229.jpg",
+    "alt": "呆呆 2025.04.08"
+  },
+  {
+    "date": "2025.04.08",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.08",
+    "desc": "这是呆呆在2025.04.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250408_204944.jpg",
+    "alt": "呆呆 2025.04.08"
+  },
+  {
+    "date": "2025.04.08",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.08",
+    "desc": "这是呆呆在2025.04.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250408_205024.jpg",
+    "alt": "呆呆 2025.04.08"
+  },
+  {
+    "date": "2025.04.08",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.08",
+    "desc": "这是呆呆在2025.04.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250408_205026.jpg",
+    "alt": "呆呆 2025.04.08"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_032410.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_032413.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_072220.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_072223.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_072235.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_072253.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_195852.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_200220.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_200221.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_200226.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_200320.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.09",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.09",
+    "desc": "这是呆呆在2025.04.09的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250409_200358.jpg",
+    "alt": "呆呆 2025.04.09"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_182535.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_183229.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_215015.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_215513.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_224244.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_224329.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.10",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.10",
+    "desc": "这是呆呆在2025.04.10的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250410_231645.jpg",
+    "alt": "呆呆 2025.04.10"
+  },
+  {
+    "date": "2025.04.11",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.11",
+    "desc": "这是呆呆在2025.04.11的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250411_211743.jpg",
+    "alt": "呆呆 2025.04.11"
+  },
+  {
+    "date": "2025.04.11",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.11",
+    "desc": "这是呆呆在2025.04.11的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250411_212113.jpg",
+    "alt": "呆呆 2025.04.11"
+  },
+  {
+    "date": "2025.04.11",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.11",
+    "desc": "这是呆呆在2025.04.11的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250411_214155.jpg",
+    "alt": "呆呆 2025.04.11"
+  },
+  {
+    "date": "2025.04.13",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.13",
+    "desc": "这是呆呆在2025.04.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250413_220250.jpg",
+    "alt": "呆呆 2025.04.13"
+  },
+  {
+    "date": "2025.04.13",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.13",
+    "desc": "这是呆呆在2025.04.13的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250413_220255.jpg",
+    "alt": "呆呆 2025.04.13"
+  },
+  {
+    "date": "2025.04.17",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.17",
+    "desc": "这是呆呆在2025.04.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250417_183751.jpg",
+    "alt": "呆呆 2025.04.17"
+  },
+  {
+    "date": "2025.04.17",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.17",
+    "desc": "这是呆呆在2025.04.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250417_183754.jpg",
+    "alt": "呆呆 2025.04.17"
+  },
+  {
+    "date": "2025.04.19",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.19",
+    "desc": "这是呆呆在2025.04.19的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250419_094537.jpg",
+    "alt": "呆呆 2025.04.19"
+  },
+  {
+    "date": "2025.04.19",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.19",
+    "desc": "这是呆呆在2025.04.19的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250419_094545.jpg",
+    "alt": "呆呆 2025.04.19"
+  },
+  {
+    "date": "2025.04.19",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.19",
+    "desc": "这是呆呆在2025.04.19的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250419_103226.jpg",
+    "alt": "呆呆 2025.04.19"
+  },
+  {
+    "date": "2025.04.19",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.19",
+    "desc": "这是呆呆在2025.04.19的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250419_231509.jpg",
+    "alt": "呆呆 2025.04.19"
+  },
+  {
+    "date": "2025.04.19",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.19",
+    "desc": "这是呆呆在2025.04.19的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250419_231515.jpg",
+    "alt": "呆呆 2025.04.19"
+  },
+  {
+    "date": "2025.04.25",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.25",
+    "desc": "这是呆呆在2025.04.25的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250425_175255.jpg",
+    "alt": "呆呆 2025.04.25"
+  },
+  {
+    "date": "2025.04.27",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.27",
+    "desc": "这是呆呆在2025.04.27的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250427_174912.jpg",
+    "alt": "呆呆 2025.04.27"
+  },
+  {
+    "date": "2025.04.27",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.27",
+    "desc": "这是呆呆在2025.04.27的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250427_232954.jpg",
+    "alt": "呆呆 2025.04.27"
+  },
+  {
+    "date": "2025.04.29",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.29",
+    "desc": "这是呆呆在2025.04.29的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250429_185006.jpg",
+    "alt": "呆呆 2025.04.29"
+  },
+  {
+    "date": "2025.04.30",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.30",
+    "desc": "这是呆呆在2025.04.30的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250430_182312.jpg",
+    "alt": "呆呆 2025.04.30"
+  },
+  {
+    "date": "2025.04.30",
+    "yearMonth": "2025.04",
+    "title": "呆呆的成长记录 · 2025.04.30",
+    "desc": "这是呆呆在2025.04.30的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250430_225517.jpg",
+    "alt": "呆呆 2025.04.30"
+  },
+  {
+    "date": "2025.05.01",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.01",
+    "desc": "这是呆呆在2025.05.01的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250501_132946.jpg",
+    "alt": "呆呆 2025.05.01"
+  },
+  {
+    "date": "2025.05.02",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.02",
+    "desc": "这是呆呆在2025.05.02的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250502_002514.jpg",
+    "alt": "呆呆 2025.05.02"
+  },
+  {
+    "date": "2025.05.02",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.02",
+    "desc": "这是呆呆在2025.05.02的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250502_002520.jpg",
+    "alt": "呆呆 2025.05.02"
+  },
+  {
+    "date": "2025.05.03",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.03",
+    "desc": "这是呆呆在2025.05.03的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250503_214454.jpg",
+    "alt": "呆呆 2025.05.03"
+  },
+  {
+    "date": "2025.05.05",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.05",
+    "desc": "这是呆呆在2025.05.05的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250505_075542.jpg",
+    "alt": "呆呆 2025.05.05"
+  },
+  {
+    "date": "2025.05.07",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.07",
+    "desc": "这是呆呆在2025.05.07的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250507_185543.jpg",
+    "alt": "呆呆 2025.05.07"
+  },
+  {
+    "date": "2025.05.07",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.07",
+    "desc": "这是呆呆在2025.05.07的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250507_222122.jpg",
+    "alt": "呆呆 2025.05.07"
+  },
+  {
+    "date": "2025.05.15",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.15",
+    "desc": "这是呆呆在2025.05.15的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250515_171252.jpg",
+    "alt": "呆呆 2025.05.15"
+  },
+  {
+    "date": "2025.05.17",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.17",
+    "desc": "这是呆呆在2025.05.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250517_110346.jpg",
+    "alt": "呆呆 2025.05.17"
+  },
+  {
+    "date": "2025.05.17",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.17",
+    "desc": "这是呆呆在2025.05.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250517_114423.jpg",
+    "alt": "呆呆 2025.05.17"
+  },
+  {
+    "date": "2025.05.17",
+    "yearMonth": "2025.05",
+    "title": "呆呆的成长记录 · 2025.05.17",
+    "desc": "这是呆呆在2025.05.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20250517_114424.jpg",
+    "alt": "呆呆 2025.05.17"
+  },
+  {
+    "date": "2025.10.17",
+    "yearMonth": "2025.10",
+    "title": "呆呆的成长记录 · 2025.10.17",
+    "desc": "这是呆呆在2025.10.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20251017_173712.jpg",
+    "alt": "呆呆 2025.10.17"
+  },
+  {
+    "date": "2025.10.17",
+    "yearMonth": "2025.10",
+    "title": "呆呆的成长记录 · 2025.10.17",
+    "desc": "这是呆呆在2025.10.17的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20251017_173718.jpg",
+    "alt": "呆呆 2025.10.17"
+  },
+  {
+    "date": "2025.12.08",
+    "yearMonth": "2025.12",
+    "title": "呆呆的成长记录 · 2025.12.08",
+    "desc": "这是呆呆在2025.12.08的珍贵瞬间，21的珍贵瞬间，记录每一个可爱的时刻～","type":"image",
+    "img": "./zipImage/IMG_20251208_195547.jpg",
+    "alt": "呆呆 2025.12.08"
+  }
+,
+        // B站视频示例（替换BV号即可）
+        {
+            "date": "2025.02.28",
+            "yearMonth": "2025.02",
+            "title": "呆呆第一次出门散步 · 2025.02.28",
+            "desc": "记录呆呆第一次出门散步的可爱样子～",
+            "type": "video", // 类型：视频
+            "bvid": "BV123456789012" // 替换为你的B站视频BV号
+        },
+        // 另一张图片示例
+        {
+            "date": "2025.03.01",
+            "yearMonth": "2025.03",
+            "title": "呆呆的成长记录 · 2025.03.01",
+            "desc": "这是呆呆在2025.03.01的珍贵瞬间～",
+            "type": "image",
+            "img": "zipImage/IMG_20250301_035748.jpg",
+            "alt": "呆呆 2025.03.01"
+        }
+    ];
 
-        // 1. 导航栏滚动变色
-        const navbar = document.getElementById('mainNavbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
+    // 2. 渲染核心函数
+    function renderMedia() {
+        try {
+            const timelineContainer = document.getElementById('timeline-container');
+            const progressNav = document.getElementById('progressNav');
+            let timelineHtml = '';
+
+            // 处理年月导航（去重合并）
+            const monthAnchorMap = new Map();
+            const uniqueMonths = [];
+
+            // 遍历媒体数据（图片+视频）
+            mediaList.forEach(item => {
+                const yearMonth = item.yearMonth;
+                const monthAnchorId = `month-${yearMonth.replace(/\./g, '-')}`;
+                const mediaAnchorId = `media-${item.date.replace(/\./g, '-')}`;
+
+                // 年月锚点去重
+                if (!monthAnchorMap.has(yearMonth)) {
+                    monthAnchorMap.set(yearMonth, monthAnchorId);
+                    uniqueMonths.push(yearMonth);
+                    timelineHtml += `<div id="${monthAnchorId}" class="timeline-month-anchor"></div>`;
+                }
+
+                // ========== 生成卡片（区分图片/视频） ==========
+                let mediaContent = '';
+                if (item.type === 'image') {
+                    // 图片卡片
+                    mediaContent = `
+                    <div class="card-media">
+                        <img class="lozad" data-src="${item.img}" alt="${item.alt}" loading="lazy">
+                    </div>
+                    `;
+                } else if (item.type === 'video') {
+                    // B站视频卡片（自动拼接嵌入链接）
+                    mediaContent = `
+                    <div class="card-video">
+                        <iframe src="https://player.bilibili.com/player.html?bvid=${item.bvid}&page=1&autoplay=0" 
+                                scrolling="no" 
+                                allowfullscreen="true"
+                                allow="autoplay; fullscreen; picture-in-picture">
+                        </iframe>
+                    </div>
+                    `;
+                }
+
+                // 拼接卡片HTML
+                timelineHtml += `
+                <div class="timeline-item" id="${mediaAnchorId}">
+                    <div class="card">
+                        <div class="card-inner">
+                            <div class="date-badge">${item.date}</div>
+                            <div class="card-text">
+                                <h3>${item.title}</h3>
+                                <p>${item.desc}</p>
+                            </div>
+                        </div>
+                        ${mediaContent}
+                    </div>
+                </div>
+                `;
+            });
+
+            // 生成导航HTML
+            let navHtml = '';
+            uniqueMonths.forEach(month => {
+                const anchorId = monthAnchorMap.get(month);
+                navHtml += `<a href="#${anchorId}">${month}</a>`;
+            });
+
+            // 插入到页面
+            timelineContainer.innerHTML = timelineHtml;
+            progressNav.innerHTML = navHtml;
+
+            // 初始化懒加载（仅图片）
+            function initLozad() {
+                if (typeof lozad === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/lozad@1.16.0/dist/lozad.min.js';
+                    script.onload = () => {
+                        const observer = lozad('.lozad', { rootMargin: '200px 0px' });
+                        observer.observe();
+                    };
+                    script.onerror = () => {
+                        document.querySelectorAll('.lozad').forEach(img => {
+                            img.src = img.dataset.src;
+                            img.classList.remove('lozad');
+                        });
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    const observer = lozad('.lozad', { rootMargin: '200px 0px' });
+                    observer.observe();
+                }
             }
-        });
+            initLozad();
 
-        // 2. 英雄区背景图滚动缩放 (平滑缩小)
-        const heroBg = document.getElementById('heroBgImg');
-        const heroSection = document.getElementById('heroSection');
-        let maxScroll = document.body.scrollHeight - window.innerHeight;
+            // 卡片入场动画
+            function initScrollAnimation() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
 
-        function updateHeroScale() {
-            const scrollY = window.scrollY;
-            // 限制最大滚动比例 0~1
-            let progress = Math.min(scrollY / (maxScroll || 1), 1);
-            // 缩放范围从 1 到 0.8 (可调整)
-            const scale = 1 + progress * 0.2; // 最大缩小到0.8
+                document.querySelectorAll('.timeline-item').forEach(item => {
+                    observer.observe(item);
+                });
+            }
+            initScrollAnimation();
+
+            // 导航高亮
+            function initNavHighlight() {
+                const mediaToMonthMap = new Map();
+                mediaList.forEach(item => {
+                    const mediaAnchorId = `media-${item.date.replace(/\./g, '-')}`;
+                    mediaToMonthMap.set(mediaAnchorId, item.yearMonth);
+                });
+
+                const navObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const mediaAnchorId = entry.target.id;
+                            const currentMonth = mediaToMonthMap.get(mediaAnchorId);
+                            if (currentMonth) {
+                                document.querySelectorAll('.progress-nav a').forEach(link => {
+                                    link.classList.remove('active');
+                                });
+                                const activeLink = document.querySelector(`.progress-nav a[href="#month-${currentMonth.replace(/\./g, '-')}"]`);
+                                if (activeLink) {
+                                    activeLink.classList.add('active');
+                                    if (window.innerWidth < 768) {
+                                        activeLink.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }, { rootMargin: "-20% 0px -20% 0px" });
+
+                document.querySelectorAll('.timeline-item').forEach(item => {
+                    navObserver.observe(item);
+                });
+            }
+            initNavHighlight();
+
+        } catch (error) {
+            console.error('渲染失败：', error);
+            document.getElementById('timeline-container').innerHTML = `
+                <div style="text-align:center; padding: 50px 1rem; color: #ff6b6b;">
+                    <h3>加载失败 😢</h3>
+                    <p>错误原因：${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // Hero视差效果
+    window.addEventListener('scroll', () => {
+        const scrollPos = window.scrollY;
+        const heroHeight = document.getElementById('hero').offsetHeight;
+        const heroBg = document.getElementById('heroBg');
+        if (scrollPos < heroHeight) {
+            const scale = 1 + (scrollPos / heroHeight) * 0.15; // 更小的缩放，更自然
             heroBg.style.transform = `scale(${scale})`;
         }
+    });
 
-        window.addEventListener('scroll', updateHeroScale);
-        window.addEventListener('resize', () => {
-            maxScroll = document.body.scrollHeight - window.innerHeight;
-            updateHeroScale();
-        });
-        // 初始调用
-        maxScroll = document.body.scrollHeight - window.innerHeight;
-        updateHeroScale();
-
-        // 3. 滚动显现动画 (Intersection Observer)
-        const fadeElements = document.querySelectorAll('.fade-up');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
-        fadeElements.forEach(el => observer.observe(el));
-
-        // 4. 横向滚动 (拖拽 + 进度点)
-        const scrollContainer = document.getElementById('scrollContainer');
-        const cards = document.querySelectorAll('.journey-card');
-        const dotsContainer = document.getElementById('progressDots');
-        const totalCards = cards.length;
-
-        // 生成进度点
-        function createDots() {
-            dotsContainer.innerHTML = '';
-            for (let i = 0; i < totalCards; i++) {
-                const dot = document.createElement('div');
-                dot.classList.add('progress-dot');
-                dot.dataset.index = i;
-                dot.addEventListener('click', () => {
-                    cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-                });
-                dotsContainer.appendChild(dot);
-            }
-            updateActiveDot();
-        }
-
-        function updateActiveDot() {
-            if (!scrollContainer) return;
-            const containerRect = scrollContainer.getBoundingClientRect();
-            const containerCenter = containerRect.left + containerRect.width / 2;
-            let closestIndex = 0;
-            let minDistance = Infinity;
-
-            cards.forEach((card, index) => {
-                const cardRect = card.getBoundingClientRect();
-                const cardCenter = cardRect.left + cardRect.width / 2;
-                const distance = Math.abs(cardCenter - containerCenter);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = index;
-                }
-            });
-
-            const dots = document.querySelectorAll('.progress-dot');
-            dots.forEach((dot, idx) => {
-                if (idx === closestIndex) dot.classList.add('active');
-                else dot.classList.remove('active');
-            });
-        }
-
-        if (scrollContainer) {
-            scrollContainer.addEventListener('scroll', updateActiveDot);
-        }
-        createDots();
-
-        // 鼠标拖拽滚动
-        let isDragging = false;
-        let startX, scrollLeftStart;
-
-        if (scrollContainer) {
-            scrollContainer.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                startX = e.pageX - scrollContainer.offsetLeft;
-                scrollLeftStart = scrollContainer.scrollLeft;
-                scrollContainer.classList.add('dragging');
-                e.preventDefault();
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                const x = e.pageX - scrollContainer.offsetLeft;
-                const walk = (x - startX) * 1.5;
-                scrollContainer.scrollLeft = scrollLeftStart - walk;
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    scrollContainer.classList.remove('dragging');
-                }
-            });
-
-            document.addEventListener('mouseleave', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    scrollContainer.classList.remove('dragging');
-                }
-            });
-        }
-
-        // 卡片点击 (演示)
-        cards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (isDragging) return; // 拖拽时不触发
-                const title = card.querySelector('.journey-title')?.innerText || '历程';
-                alert(`查看更多：${title}`);
-            });
-        });
-
-        // 窗口大小变化重新计算点位置
-        window.addEventListener('resize', updateActiveDot);
-    })();
+    // 页面加载完成后渲染
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(renderMedia, 100);
+    });
 </script>
-
-<!-- 手动让初始可见元素直接显示（英雄区内容不需要动画） -->
-<style>
-    /* 英雄区内容默认可见，无需动画 */
-    .hero-content { opacity: 1; transform: none; }
-    /* 确保navbar链接颜色在深色背景下可见 */
-    .navbar .nav-link { color: white !important; }
-    .navbar.scrolled .nav-link { color: #1d1d1f !important; }
-    .navbar-brand { color: white; -webkit-text-fill-color: white; background: none; }
-    .navbar.scrolled .navbar-brand { background: linear-gradient(135deg, #1d1d1f, #444446); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    /* 按钮样式微调 */
-    .btn-primary { background-color: #0066cc; border: none; }
-    .btn-primary:hover { background-color: #004999; }
-    .btn-outline-light:hover { color: #1d1d1f; }
-</style>
 </body>
 </html>
